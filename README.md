@@ -8,7 +8,7 @@ Ce projet met en place un pipeline CI/CD complet pour une application web Larave
 - **Déploiement** : Conteneurisation avec Docker et déploiement sur un serveur de production.
 
 ## Architecture
-![Diagramme](docs/architecture.png)
+![Diagramme](Project-image.png)
 
 ## Prérequis
 - AWS CLI
