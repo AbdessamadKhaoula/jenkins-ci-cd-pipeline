@@ -186,14 +186,14 @@ With this setup, the infrastructure for the CI/CD pipeline is ready, and the req
 
 ## Step 2: Jenkins Setup for CI/CD Pipeline
 
-# 1. Install Necessary Plugins
+### 1. Install Necessary Plugins
 To configure Jenkins for the CI/CD pipeline, first, install the necessary plugins. These plugins will be required for integrating with NodeJS, JDK, SonarQube, and Docker.
 
-# 2. Install Tools in Jenkins
+### 2. Install Tools in Jenkins
 
 After installing the required plugins, the next step is to install the tools: `NodeJS 16`, `JDK 17`, `SonarQube Scanner` and `Docker`.
 
-# 3. Configure SonarQube and Jenkins
+### 3. Configure SonarQube and Jenkins
 
 Next, configure SonarQube and connect it to Jenkins:
 
@@ -214,13 +214,13 @@ Next, configure SonarQube and connect it to Jenkins:
      - **Kind**: Secret text
      - **Secret**: GitHub personal access token
 
-# 4. Link GitHub Repository to Jenkins
+### 4. Link GitHub Repository to Jenkins
 
 - Go to **Manage Jenkins** → **Configure System**.
 - In the **GitHub Servers** section, click **Add GitHub Server**.
 - Enter your GitHub credentials (GitHub token added in Jenkins credentials).
 
-# 5. Add Docker Hub Token
+### 5. Add Docker Hub Token
 
 To integrate Docker Hub with Jenkins, follow these steps:
 
@@ -368,3 +368,15 @@ post {
 }
 ```
 - Sends an email notification with the build result, log, and scan reports attached.
+## Step 4: Create CI Job in Jenkins
+1. Open Jenkins, go to New Item, and select Pipeline.
+
+2. Name the job (e.g., NodeJS-app-CI) and click OK.
+
+3. In the Pipeline section:
+
+- Choose Pipeline script from SCM.
+- Set SCM to Git.
+- Add the Git repository URL: https://github.com/.....
+- Specify the branch (main) and the script path (Jenkinsfile).
+- Save and build the pipeline to execute the CI process.
