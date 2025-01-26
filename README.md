@@ -235,7 +235,7 @@ To integrate Docker Hub with Jenkins, follow these steps:
 
 With these configurations in place, you can now set up your Jenkins job to trigger builds and analyze your code using SonarQube!
 
-## Step 3: Create the Pipeline Script ([Jenkinsfile](./src/jenkinsfile))
+## Step 3: Create the Pipeline Script ([Jenkinsfile](./src/Jenkinsfile))
 
 Below is the `Jenkinsfile` defining the CI pipeline. Each stage is explained below.
 
