@@ -120,4 +120,36 @@ Prometheus is a monitoring tool that collects and stores metrics from Kubernetes
 ### **10. Grafana**  
 Grafana is a visualization tool used to create customizable dashboards for monitoring system metrics. It integrates seamlessly with Prometheus to display detailed insights into application and infrastructure performance. With Grafana, the team can analyze resource utilization and system health, making it easier to optimize and troubleshoot the pipeline and deployed services.  
 
+## Step 1: Infrastructure Creation  
+
+The first step in the pipeline is to provision the necessary infrastructure using Terraform. This includes creating an EC2 instance for hosting Jenkins, Docker, and SonarQube, as well as setting up the required security groups, IAM users, and permissions.  
+
+### Files in This Step  
+All related files are located in the `Scripts` folder:  
+- **`[main.tf](./Scripts/main.tf) `**: Defines the EC2 instance (type `t3.large`), security groups, and configurations to allow SSH and other required ports.  
+- **`[provider.tf](./Scripts/main.tf)`**: Specifies the AWS provider configuration, including the region and access credentials.  
+- **`[install.sh](./Scripts/install.sh)`**: A shell script for post-provisioning setup that installs Java (JDK), Jenkins, Docker, and Trivy, and builds a SonarQube container using Docker.  
+
+### Key Tasks  
+1. **Create IAM User and Attach Policies**:  
+   - Create a new IAM user in AWS and attach the necessary policies (e.g., `AdministratorAccess`) for managing infrastructure.  
+   - Generate an access key and secret key for the IAM user.  
+
+2. **Prepare the Terraform Files**:  
+   - Navigate to the folder containing the Terraform scripts (`main.tf`, `provider.tf`, and `install.sh`).  
+   - Ensure the `provider.tf` file contains your AWS access key and secret key for authentication.  
+
+3. **Run Terraform Commands**:  
+   Open a terminal in the directory where the Terraform files are located and execute the following commands:  
+   - **`terraform init`**: Initializes Terraform and downloads the required provider plugins.  
+   - **`terraform plan`**: Previews the infrastructure changes that will be made.  
+   - **`terraform apply --auto-approve`**: Creates the infrastructure as defined in the Terraform files.  
+
+### Outcome  
+- An EC2 instance of type `t3.large` will be created.  
+- Security groups will be configured to allow necessary ports (e.g., HTTP, HTTPS, SSH, and SonarQube ports).  
+- The `install.sh` script will execute on the instance, setting up Jenkins, Docker, SonarQube, and Trivy.  
+
+With this setup, the infrastructure for the CI/CD pipeline is ready, and the required tools are installed and configured to proceed with the next steps.  
+
 
