@@ -12,7 +12,7 @@ This project sets up a complete CI/CD pipeline for deploying a Node.js applicati
 ## Architecture
 ![Diagramme](Project-image.png)
 
-## Prérequis
+## Prerequisites
 - Terraform
 - AWS CLI
 - Jenkins
@@ -24,42 +24,93 @@ This project sets up a complete CI/CD pipeline for deploying a Node.js applicati
 
 
 ## Pipeline Overview:
-- **1. Infrastructure Creation:**
+**1. Infrastructure Creation:**
 
-* Use Terraform to create EC2 instances for Jenkins, Docker, and SonarQube.
-- **2. Jenkins Configuration:**
+- Use Terraform to create EC2 instance for Jenkins, Docker, and SonarQube.
+**2. Jenkins Configuration:**
 
-Install and configure Jenkins.
-Set up SonarQube and integrate it with Jenkins.
-- **3. CI Pipeline:**
+- Install and configure Jenkins.
+- Set up SonarQube and integrate it with Jenkins.
+**3. CI Pipeline:**
 
-Create a Jenkinsfile to define the CI process.
-Perform the following steps in the CI job:
-Trigger SonarQube for code analysis.
-Install npm dependencies.
-Use Trivy to scan the filesystem for vulnerabilities.
-Build and push the Docker image to Docker Hub.
-Scan the Docker image on Docker Hub using Trivy.
-- **4. Triggering the CD Job:**
+- Create a Jenkinsfile to define the CI process.
+- Perform the following steps in the CI job:
+- Trigger SonarQube for code analysis.
+- Install npm dependencies.
+- Use Trivy to scan the filesystem for vulnerabilities.
+- Build and push the Docker image to Docker Hub.
+- Scan the Docker image on Docker Hub using Trivy.
+**4. Triggering the CD Job:**
 
-Once the CI job is completed, trigger the CD job remotely.
-- **5. CD Pipeline:**
+- Once the CI job is completed, trigger the CD job remotely.
+**5. CD Pipeline:**
 
-Push the Docker image to a GitOps repository.
-Use GitOps to trigger ArgoCD.
-ArgoCD deploys the application on the Kubernetes (EKS) cluster.
-- **6. Cluster Configuration:**
+- Push the Docker image to a GitOps repository.
+- Use GitOps to trigger ArgoCD.
+- ArgoCD deploys the application on the Kubernetes (EKS) cluster.
+**6. Cluster Configuration:**
 
-Create an AWS EKS cluster.
-Install Prometheus and Grafana using Helm for monitoring the Kubernetes cluster.
-- **7. ArgoCD Setup:**
+- Create an AWS EKS cluster.
+- Install Prometheus and Grafana using Helm for monitoring the Kubernetes cluster.
+**7. ArgoCD Setup:**
 
-Install ArgoCD on the EKS cluster.
-Add the AWS EKS cluster to ArgoCD.
-Configure ArgoCD to deploy Pods on the EKS cluster.
-Automate ArgoCD deployment using a GitOps GitHub repository.
-- **8. Trigger Mechanism:**
+- Install ArgoCD on the EKS cluster.
+- Add the AWS EKS cluster to ArgoCD.
+- Configure ArgoCD to deploy Pods on the EKS cluster.
+- Automate ArgoCD deployment using a GitOps GitHub repository.
+**8. Trigger Mechanism:**
 
-Set up GitHub webhooks to trigger the CI/CD pipeline.
-Verify the entire pipeline workflow.
+- Set up GitHub webhooks to trigger the CI/CD pipeline.
+- Verify the entire pipeline workflow.
+
+## 🔧 Technologies Used  
+
+### **1. Terraform**  
+Terraform automates the provisioning of cloud infrastructure using declarative configuration files. It ensures infrastructure is consistent, reproducible, and version-controlled. In this project, Terraform is used to create EC2 instance for Jenkins, Docker, and SonarQube.This approach enables seamless infrastructure management and scalability, forming the foundation of the CI/CD pipeline.  
+
+---
+
+### **2. AWS**  
+AWS provides scalable, reliable, and secure cloud infrastructure for hosting applications and services. It is used in this pipeline to host EC2 instance for Jenkins, SonarQube, and Docker. Additionally, AWS EKS (Elastic Kubernetes Service) serves as the managed Kubernetes platform to deploy and orchestrate the application. AWS's robust ecosystem ensures high availability, flexibility, and security for the deployment pipeline.  
+
+---
+
+### **3. Jenkins**  
+Jenkins orchestrates the automation of build, test, and deployment workflows, acting as the backbone of the CI/CD pipeline. It triggers code quality analysis using SonarQube, installs npm dependencies, performs filesystem and container vulnerability scans using Trivy, builds Docker images, and pushes them to Docker Hub. Jenkins ensures the pipeline runs smoothly with error detection, providing visibility into each stage of the process.  
+
+---
+
+### **4. SonarQube**  
+SonarQube is a powerful tool for analyzing code quality and maintaining secure, clean, and maintainable codebases. It scans the application code during the CI stage, identifying bugs, code smells, and security vulnerabilities. Integrating SonarQube into Jenkins ensures continuous code quality checks, helping developers maintain high standards throughout the development lifecycle.  
+
+---
+
+### **5. Trivy**  
+Trivy is a comprehensive security scanner for filesystems and container images. It scans the source code for vulnerabilities during the CI process and performs an additional scan of the Docker image after it is built and pushed to Docker Hub. By incorporating Trivy, this pipeline prioritizes security, ensuring the application and its dependencies are free from known vulnerabilities before deployment.  
+
+---
+
+### **6. Docker**  
+Docker is used for containerizing the Node.js application, enabling consistent execution across different environments. The pipeline builds a Docker image of the application and pushes it to Docker Hub for storage and distribution. Docker ensures the application is lightweight, portable, and isolated from host dependencies, making it ideal for scalable deployments.  
+
+---
+
+### **7. Kubernetes (AWS EKS)**  
+Kubernetes, orchestrated via AWS EKS, automates the deployment, scaling, and management of containerized applications. It provides a highly available and resilient platform for hosting the Node.js application. Kubernetes ensures the application scales dynamically to handle traffic demands while maintaining fault tolerance and resource efficiency.  
+
+---
+
+### **8. ArgoCD**  
+ArgoCD implements GitOps to automate application deployments and updates in Kubernetes clusters based on changes in a Git repository. ArgoCD monitors the GitOps repository for updates and automatically deploys the updated Docker image to the EKS cluster. This ensures that deployments are efficient, consistent, and version-controlled, reducing manual intervention and the risk of errors.  
+
+---
+
+### **9. Prometheus**  
+Prometheus is a monitoring tool that collects and stores metrics from Kubernetes resources and applications. It is deployed on the EKS cluster to track system health, resource usage, and performance metrics. Prometheus provides a robust foundation for real-time alerts and monitoring, ensuring potential issues are identified and addressed promptly.  
+
+---
+
+### **10. Grafana**  
+Grafana is a visualization tool used to create customizable dashboards for monitoring system metrics. It integrates seamlessly with Prometheus to display detailed insights into application and infrastructure performance. With Grafana, the team can analyze resource utilization and system health, making it easier to optimize and troubleshoot the pipeline and deployed services.  
+
 
