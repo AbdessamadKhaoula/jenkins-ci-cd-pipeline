@@ -524,6 +524,7 @@ kubectl edit svc stable-kube-prometheus-sta-prometheus -n prometheus
 kubectl get svc -n prometheus  # copy dns name of LB and browse with 9090
 ```
 **5. Expose Grafana to the External World:**
+
 Modify the Grafana service configuration to make it externally accessible.
 
 ```bash
@@ -541,7 +542,100 @@ kubectl get svc -n prometheus  # Copy the DNS name and access Grafana
 kubectl get secret --namespace prometheus stable-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
 - The default username is admin.
+
 ***Outcome***
    - Prometheus: Accessible via the LoadBalancer DNS at port 9090. Prometheus collects and visualizes Kubernetes metrics.
    - Grafana: Accessible via its LoadBalancer DNS. Grafana provides advanced dashboards and visualizations for Kubernetes monitoring.
+
+# Step 8: ArgoCD Installation on Kubernetes Cluster and Add EKS Cluster to ArgoCD
+
+ArgoCD is a declarative GitOps continuous delivery tool for Kubernetes. This step guides you through installing ArgoCD on the EKS cluster and adding the cluster to ArgoCD.
+
+---
+
+## 1. Create Namespace for ArgoCD
+Create a dedicated namespace for ArgoCD resources:
+
+```bash
+kubectl create namespace argocd
+```
+## 2. Apply YAML Configuration Files for ArgoCD
+Install ArgoCD using its official YAML configuration:
+```bash
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+- Downloads and applies ArgoCD's deployment manifest to install all required components.
+## 3. View Created Pods in the ArgoCD Namespace
+Check the status of ArgoCD pods:
+
+```bash
+kubectl get pods -n argocd
+```
+- Verifies that all ArgoCD components are running in the argocd namespace.
+Deploy ArgoCD CLI
+## 4. Install the ArgoCD CLI to interact with the ArgoCD server:
+
+```bash
+sudo curl --silent --location -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.4.7/argocd-linux-amd64
+sudo chmod +x /usr/local/bin/argocd
+```
+- Downloads the CLI binary and makes it executable for global access.
+## 5. Expose ArgoCD Server
+Change the service type of the ArgoCD server to LoadBalancer for external access:
+
+```bash
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+```
+- Exposes the ArgoCD server to the internet using a load balancer.
+## 6. Wait for LoadBalancer Creation
+Check the service status to retrieve the external IP or hostname:
+
+```bash
+kubectl get svc -n argocd
+```
+Explanation:
+Takes a few minutes for the load balancer to be fully operational.
+## 7. Retrieve and Decode the Admin Password
+Get the initial admin password and decode it:
+```bash
+kubectl get secret argocd-initial-admin-secret -n argocd -o yaml
+echo WXVpLUg2LWxoWjRkSHFmSA== | base64 --decode
+```
+- Extracts the encoded admin password from the ArgoCD secret and decodes it.
+- Use the decoded password for initial login.
+## 8. Login to ArgoCD via CLI
+Log in to ArgoCD using the server's external IP or hostname:
+
+```bash
+argocd login <ARGOCD_SERVER_URL> --username admin
+```
+- Replace <ARGOCD_SERVER_URL> with the external hostname from the kubectl get svc command.
+## 9. View Available Clusters in ArgoCD
+Check all clusters currently managed by ArgoCD:
+
+```bash
+argocd cluster list
+```
+- Displays clusters connected to ArgoCD.
+## 10. Retrieve EKS Cluster Context Details
+Get the context information of the EKS cluster:
+```bash
+kubectl config get-contexts
+```
+- Shows details like the context name, cluster, and user.
+## 11. Add EKS Cluster to ArgoCD
+Register the EKS cluster with ArgoCD:
+```bash
+argocd cluster add <EKS_CLUSTER_CONTEXT> --name virtualtechbox-eks-cluster
+```
+- Replace <EKS_CLUSTER_CONTEXT> with the appropriate context name from kubectl config get-contexts.
+- Adds the EKS cluster to ArgoCD for application management and GitOps workflows.
+By following these steps, ArgoCD will be installed on your Kubernetes cluster, and your EKS cluster will be integrated for seamless application deployment and management.
+
+
+
+
+
+
+
 
