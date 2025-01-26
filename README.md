@@ -201,6 +201,9 @@ Next, configure SonarQube and connect it to Jenkins:
    - Go to **Manage Jenkins** → **Configure System**.
    - Under **SonarQube Servers**, add the SonarQube server by providing the server URL (e.g., `http://<sonarqube-server-url>`).
    - In the **Authentication Token** field, add the SonarQube authentication token you generated in SonarQube.
+***Add Quality Gate***
+   - In the SonarQube configuration within Jenkins, ensure the **Quality Gate** is added.
+   - This ensures the build quality is checked during each build.
 
  ***Add Token in Jenkins Credentials***
    - Go to **Manage Jenkins** → **Manage Credentials** → (select the scope) → **Add Credentials**.
@@ -211,16 +214,157 @@ Next, configure SonarQube and connect it to Jenkins:
      - **Kind**: Secret text
      - **Secret**: GitHub personal access token
 
-***Add Quality Gate***
-   - In the SonarQube configuration within Jenkins, ensure the **Quality Gate** is added.
-   - This ensures the build quality is checked during each build.
-
 # 4. Link GitHub Repository to Jenkins
 
 - Go to **Manage Jenkins** → **Configure System**.
 - In the **GitHub Servers** section, click **Add GitHub Server**.
 - Enter your GitHub credentials (GitHub token added in Jenkins credentials).
-- In your Jenkins pipeline/job configuration, ensure the correct GitHub repository is linked.
+
+# 5. Add Docker Hub Token
+
+To integrate Docker Hub with Jenkins, follow these steps:
+
+   - Generate Docker Hub Token.
+   - Go to **Manage Jenkins** → **Manage Credentials** → (select the scope) → **Add Credentials**.
+   - Choose **Kind**: **Secret text**.
+   - Enter the **Secret**: your Docker Hub access token.
+   - Go to **Manage Jenkins** → **Configure System**.
+   - Scroll to the **Docker** section.
+   - Add Docker Hub credentials using the token created earlier.
+   - Set up your Docker Hub login information using your username and the token.
 
 With these configurations in place, you can now set up your Jenkins job to trigger builds and analyze your code using SonarQube!
 
+## Step 3: Create the Pipeline Script ([Jenkinsfile](./src/jenkinsfile))
+
+Below is the `Jenkinsfile` defining the CI pipeline. Each stage is explained below.
+
+### Clean Workspace
+```groovy
+   stage('Clean Workspace') {
+      steps {
+         cleanWs()
+      }
+   } 
+```
+- Cleans the Jenkins workspace to ensure no leftover files from previous builds affect the current build.
+### Checkout from Git
+```groovy
+   stage('Checkout from Git') {
+      steps {
+         git branch: 'main', url: 'https://github.com/AbdessamadKhaoula/pipelineCI-CD-nodejs.git'
+      }
+   }
+```
+- Pulls the source code from the GitHub repository, ensuring the pipeline uses the latest code.
+### SonarQube Analysis
+```groovy
+stage("SonarQube Analysis") {
+    steps {
+        withSonarQubeEnv('SonarQube-Server') {
+            sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=node-js-app-CI \
+            -Dsonar.projectKey=node-js-app-CI'''
+        }
+    }
+}
+```
+- Runs static code analysis using SonarQube to identify code smells, vulnerabilities, and maintainability issues.
+### Quality Gate
+```groovy
+stage("Quality Gate") {
+    steps {
+        script {
+            waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-token'
+        }
+    }
+}
+```
+- Ensures the code meets the quality thresholds defined in SonarQube before proceeding to further stages.
+### Install Dependencies
+```groovy
+stage('Install Dependencies') {
+    steps {
+        sh "npm install"
+    }
+}
+```
+- Installs the required dependencies listed in the package.json file for the Node.js application.
+### Trivy FS Scan
+```groovy
+stage('Trivy FS Scan') {
+    steps {
+        sh """
+        export TRIVY_DB_REPO=ghcr.io/aquasecurity/trivy-db
+        trivy fs . > trivyfs.txt """
+    }
+}
+```
+- Scans the file system for vulnerabilities using Trivy and outputs the report to trivyfs.txt.
+### Build & Push Docker Image
+```groovy
+stage("Build & Push Docker Image") {
+    steps {
+        script {
+            docker.withRegistry('',DOCKER_PASS) {
+                docker_image = docker.build "${IMAGE_NAME}"
+            }
+            docker.withRegistry('',DOCKER_PASS) {
+                docker_image.push("${IMAGE_TAG}")
+                docker_image.push('latest')
+            }
+        }
+    }
+}
+```
+- Builds a Docker image for the application and pushes it to Docker Hub with two tags:
+1. ${IMAGE_TAG}: Versioned tag.
+2. latest: Latest tag.
+### Trivy Image Scan
+```groovy
+stage("Trivy Image Scan") {
+    steps {
+        script {
+            sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image khaoulaabdessamad/nodejs-app:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table > trivyimage.txt')
+        }
+    }
+}
+```
+- Scans the Docker image for vulnerabilities using Trivy and outputs the report to trivyimage.txt.
+### Cleanup Artifacts
+```groovy
+stage ('Cleanup Artifacts') {
+    steps {
+        script {
+            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
+            sh "docker rmi ${IMAGE_NAME}:latest"
+        }
+    }
+}
+```
+- Removes the locally built Docker images to free up disk space on the Jenkins agent.
+### Trigger CD Pipeline
+```groovy
+stage("Trigger CD Pipeline") {
+    steps {
+        script {
+            sh "curl -v -k --user clouduser:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'ec2-16-16-199-172.eu-north-1.compute.amazonaws.com:8080/job/NodeJs-app-CD/buildWithParameters?token=gitops-token'"
+        }
+    }
+}
+```
+- Triggers the CD pipeline to deploy the application using the newly built Docker image.
+### Post Actions: Email Notification
+```groovy
+post {
+    always {
+        emailext attachLog: true,
+            subject: "'${currentBuild.result}'",
+            body: "Project: ${env.JOB_NAME}<br/>" +
+                  "Build Number: ${env.BUILD_NUMBER}<br/>" +
+                  "URL: ${env.BUILD_URL}<br/>",
+            to: 'khaoulabdessamad2002@gmail.com',
+            attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+    }
+}
+```
+- Sends an email notification with the build result, log, and scan reports attached.
