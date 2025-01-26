@@ -411,3 +411,137 @@ This step configures Jenkins to send email alerts for build notifications, ensur
 - Open the job for which you want to enable email notifications.
 - Go to the Post-build Actions section and select E-mail Notification or Editable Email Notification.
 - Provide recipient email addresses and customize the email content (optional).
+
+# Step 6: Create AWS EKS Cluster
+
+This step involves setting up an EKS (Elastic Kubernetes Service) cluster on AWS. Below are the steps to configure and verify the cluster.
+
+---
+
+## 1. Install `kubectl` on Jenkins Server
+The `kubectl` command-line tool is used to interact with Kubernetes clusters. To install it:
+
+```bash
+sudo apt update
+sudo apt install curl
+curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+kubectl version --client
+```
+- Updates the package repository.
+- Downloads the latest stable release of kubectl.
+- Installs the binary to /usr/local/bin with appropriate permissions.
+- Verifies the installation using kubectl version --client.
+
+## 2. Install AWS CLI
+The AWS Command Line Interface `(CLI)` is required to interact with AWS services, including EKS.
+
+```bash
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+sudo apt install unzip
+unzip awscliv2.zip
+sudo ./aws/install
+aws --version
+```
+- Downloads the AWS CLI installer.
+- Installs the unzip utility to extract the downloaded archive.
+- Installs AWS CLI version 2 and verifies the installation using aws --version.
+## 3. Install eksctl
+eksctl is a CLI tool to create and manage EKS clusters.
+
+```bash
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+cd /tmp
+sudo mv /tmp/eksctl /bin
+eksctl version
+```
+- Downloads the latest release of eksctl.
+- Extracts the binary and moves it to /bin for global accessibility.
+- Verifies the installation using eksctl version.
+## 4. Assign an IAM Role to the EC2 Instance
+Attach an IAM role with sufficient permissions (e.g., AmazonEKSClusterPolicy and AmazonEC2RoleforSSM) to the EC2 instance hosting Jenkins.
+This allows the instance to interact with AWS services securely.
+## 5. Set Up Kubernetes Cluster Using eksctl
+Run the following command to create an EKS cluster:
+
+```bash
+eksctl create cluster --name virtualtechbox-cluster \
+--region ap-south-1 \
+--node-type t2.small \
+--nodes 3
+```
+- name: Specifies the name of the EKS cluster.
+- region: Defines the AWS region where the cluster is created (e.g., ap-south-1 for Asia Pacific (Mumbai)).
+- node-type: Specifies the EC2 instance type for worker nodes (e.g., t2.small).
+- nodes: Indicates the number of worker nodes in the cluster.
+## 6. Verify the Cluster
+Once the cluster is created, verify it using kubectl:
+
+```bash
+kubectl get nodes
+```
+- A list of nodes with their status, roles, and other details, indicating that the cluster is active and the worker nodes are ready.
+
+# Step 7: Setup Monitoring for Kubernetes Using Helm, Prometheus, and Grafana Dashboard
+This step involves setting up monitoring for your Kubernetes cluster by installing Prometheus and Grafana using Helm. Prometheus will collect metrics, and Grafana will provide visualizations and dashboards.
+
+Tasks
+**1. Install Helm:**
+Helm is used to manage Kubernetes applications.
+
+```bash
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+helm version
+```
+**2. Add Helm repositories:**
+Add the necessary `Helm` repositories for Prometheus and Grafana.
+
+```bash
+helm repo add stable https://charts.helm.sh/stable
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+kubectl create namespace prometheus  # Create namespace for Prometheus
+```
+**3. Install Prometheus Using Helm:**
+Install the Prometheus Helm chart in the prometheus namespace.
+
+```bash
+helm install stable prometheus-community/kube-prometheus-stack -n prometheus
+kubectl get pods -n prometheus  # Verify Prometheus pods
+kubectl get svc -n prometheus   # Verify Prometheus services
+```
+**4. Expose Prometheus to the External World:**
+Update the Prometheus service configuration to make it accessible outside the cluster.
+
+```bash
+kubectl edit svc stable-kube-prometheus-sta-prometheus -n prometheus
+```
+- Change ClusterIP to LoadBalancer.
+- Update port and targetPort to 9090.
+- Save and close.
+```bash
+kubectl get svc -n prometheus  # copy dns name of LB and browse with 9090
+```
+**5. Expose Grafana to the External World:**
+Modify the Grafana service configuration to make it externally accessible.
+
+```bash
+kubectl edit svc stable-grafana -n prometheus
+```
+- Change ClusterIP to LoadBalancer.
+- Save and close.
+```bash
+kubectl get svc -n prometheus  # Copy the DNS name and access Grafana
+```
+- Retrieve Grafana Admin Credentials:
+- Get the admin password for Grafana to log in.
+
+```bash
+kubectl get secret --namespace prometheus stable-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+- The default username is admin.
+***Outcome***
+   - Prometheus: Accessible via the LoadBalancer DNS at port 9090. Prometheus collects and visualizes Kubernetes metrics.
+   - Grafana: Accessible via its LoadBalancer DNS. Grafana provides advanced dashboards and visualizations for Kubernetes monitoring.
+
