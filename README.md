@@ -162,23 +162,65 @@ With this setup, the infrastructure for the CI/CD pipeline is ready, and the req
 1. Check Jenkins Status:
 
 ```bash
-   systemctl status jenkins
-
+   systemctl status jenkins 
+```
 - Ensure Jenkins is active and running.
 2. Check Docker Version:
 
 ```bash
    docker --version  
+```
 - This confirms Docker is installed and provides the installed version.
 3. Check Trivy Version:
 
 ```bash
    trivy --version
-
+```
 - Verifies that Trivy is installed correctly and displays its version.
 4. List Docker Containers:
 
 ```bash
    docker ps -a
-
+```
 - This lists all running and stopped containers to confirm that the SonarQube container is set up.
+
+## Step 2: Jenkins Setup for CI/CD Pipeline
+
+# 1. Install Necessary Plugins
+To configure Jenkins for the CI/CD pipeline, first, install the necessary plugins. These plugins will be required for integrating with NodeJS, JDK, SonarQube, and Docker.
+
+# 2. Install Tools in Jenkins
+
+After installing the required plugins, the next step is to install the tools: `NodeJS 16`, `JDK 17`, `SonarQube Scanner` and `Docker`.
+
+# 3. Configure SonarQube and Jenkins
+
+Next, configure SonarQube and connect it to Jenkins:
+
+ ***Add SonarQube in Jenkins System*** 
+   - Go to **Manage Jenkins** → **Configure System**.
+   - Under **SonarQube Servers**, add the SonarQube server by providing the server URL (e.g., `http://<sonarqube-server-url>`).
+   - In the **Authentication Token** field, add the SonarQube authentication token you generated in SonarQube.
+
+ ***Add Token in Jenkins Credentials***
+   - Go to **Manage Jenkins** → **Manage Credentials** → (select the scope) → **Add Credentials**.
+   - Select **Secret text** and enter your SonarQube authentication token.
+
+***Configure GitHub Token***
+   - Similarly, add your GitHub personal access token in the Jenkins credentials:
+     - **Kind**: Secret text
+     - **Secret**: GitHub personal access token
+
+***Add Quality Gate***
+   - In the SonarQube configuration within Jenkins, ensure the **Quality Gate** is added.
+   - This ensures the build quality is checked during each build.
+
+# 4. Link GitHub Repository to Jenkins
+
+- Go to **Manage Jenkins** → **Configure System**.
+- In the **GitHub Servers** section, click **Add GitHub Server**.
+- Enter your GitHub credentials (GitHub token added in Jenkins credentials).
+- In your Jenkins pipeline/job configuration, ensure the correct GitHub repository is linked.
+
+With these configurations in place, you can now set up your Jenkins job to trigger builds and analyze your code using SonarQube!
+
