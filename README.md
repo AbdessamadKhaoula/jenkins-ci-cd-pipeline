@@ -125,10 +125,10 @@ Grafana is a visualization tool used to create customizable dashboards for monit
 The first step in the pipeline is to provision the necessary infrastructure using Terraform. This includes creating an EC2 instance for hosting Jenkins, Docker, and SonarQube, as well as setting up the required security groups, IAM users, and permissions.  
 
 ### Files in This Step  
-All related files are located in the `Scripts` folder:  
-- **`[main.tf](./Scripts/main.tf) `**: Defines the EC2 instance (type `t3.large`), security groups, and configurations to allow SSH and other required ports.  
-- **`[provider.tf](./Scripts/main.tf)`**: Specifies the AWS provider configuration, including the region and access credentials.  
-- **`[install.sh](./Scripts/install.sh)`**: A shell script for post-provisioning setup that installs Java (JDK), Jenkins, Docker, and Trivy, and builds a SonarQube container using Docker.  
+All related files are located in the `Scripts` [ Scripts Folder](./Scripts/) folder:  
+- **`main.tf`**: Defines the EC2 instance (type `t3.large`), security groups, and configurations to allow SSH and other required ports.  
+- **`provider.tf`**: Specifies the AWS provider configuration, including the region and access credentials.  
+- **`install.sh`**: A shell script for post-provisioning setup that installs Java (JDK), Jenkins, Docker, and Trivy, and builds a SonarQube container using Docker.  
 
 ### Key Tasks  
 1. **Create IAM User and Attach Policies**:  
