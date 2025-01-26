@@ -125,21 +125,25 @@ Grafana is a visualization tool used to create customizable dashboards for monit
 The first step in the pipeline is to provision the necessary infrastructure using Terraform. This includes creating an EC2 instance for hosting Jenkins, Docker, and SonarQube, as well as setting up the required security groups, IAM users, and permissions.  
 
 ### Files in This Step  
-All related files are located in the `Scripts` [ Scripts Folder](./Scripts/) folder:  
+All related files are located in the [ Scripts Folder](./Scripts/):  
 - **`main.tf`**: Defines the EC2 instance (type `t3.large`), security groups, and configurations to allow SSH and other required ports.  
-- **`provider.tf`**: Specifies the AWS provider configuration, including the region and access credentials.  
-- **`install.sh`**: A shell script for post-provisioning setup that installs Java (JDK), Jenkins, Docker, and Trivy, and builds a SonarQube container using Docker.  
+- **`provider.tf`**: Specifies the AWS provider configuration, including the region.
+- **`install.sh`**: A shell script for post-provisioning setup that installs Java (JDK), Jenkins, Docker, and Trivy, and builds a SonarQube container using Docker. 
 
 ### Key Tasks  
 1. **Create IAM User and Attach Policies**:  
    - Create a new IAM user in AWS and attach the necessary policies (e.g., `AdministratorAccess`) for managing infrastructure.  
    - Generate an access key and secret key for the IAM user.  
 
-2. **Prepare the Terraform Files**:  
-   - Navigate to the folder containing the Terraform scripts (`main.tf`, `provider.tf`, and `install.sh`).  
-   - Ensure the `provider.tf` file contains your AWS access key and secret key for authentication.  
+2. **Configure AWS CLI for Authentication**:
 
-3. **Run Terraform Commands**:  
+   - Run the command aws configure in your terminal.
+   - Enter the access key, secret key.
+
+3. **Prepare the Terraform Files**:  
+   - Navigate to the folder containing the Terraform scripts (`main.tf`, `provider.tf`, and `install.sh`).
+
+4. **Run Terraform Commands**:  
    Open a terminal in the directory where the Terraform files are located and execute the following commands:  
    - **`terraform init`**: Initializes Terraform and downloads the required provider plugins.  
    - **`terraform plan`**: Previews the infrastructure changes that will be made.  
@@ -152,4 +156,26 @@ All related files are located in the `Scripts` [ Scripts Folder](./Scripts/) fol
 
 With this setup, the infrastructure for the CI/CD pipeline is ready, and the required tools are installed and configured to proceed with the next steps.  
 
+### Verification
+- After Terraform has successfully applied the infrastructure, verify that the necessary services and tools are installed and running by connecting to the EC2 instance via SSH and running the following commands:
 
+1. Check Jenkins Status:
+
+``bash
+   systemctl status jenkins
+Ensure Jenkins is active and running.
+2. Check Docker Version:
+
+``bash
+   docker --version  
+This confirms Docker is installed and provides the installed version.
+3. Check Trivy Version:
+
+``bash
+   trivy --version
+Verifies that Trivy is installed correctly and displays its version.
+4. List Docker Containers:
+
+``bash
+   docker ps -a
+This lists all running and stopped containers to confirm that the SonarQube container is set up.
