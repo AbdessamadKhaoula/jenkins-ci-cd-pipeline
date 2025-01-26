@@ -1,4 +1,4 @@
-# CI/CD Pipeline Using Jenkins, Kubernetes, Terraform, and ArgoCD
+# CI/CD Pipeline Using Terraform, Jenkins, Kubernetes, and ArgoCD
 
 ## Description
 This project sets up a complete CI/CD pipeline for deploying a Node.js application on Kubernetes. It includes:
@@ -27,10 +27,12 @@ This project sets up a complete CI/CD pipeline for deploying a Node.js applicati
 **1. Infrastructure Creation:**
 
 - Use Terraform to create EC2 instance for Jenkins, Docker, and SonarQube.
+
 **2. Jenkins Configuration:**
 
 - Install and configure Jenkins.
 - Set up SonarQube and integrate it with Jenkins.
+
 **3. CI Pipeline:**
 
 - Create a Jenkinsfile to define the CI process.
@@ -40,24 +42,29 @@ This project sets up a complete CI/CD pipeline for deploying a Node.js applicati
 - Use Trivy to scan the filesystem for vulnerabilities.
 - Build and push the Docker image to Docker Hub.
 - Scan the Docker image on Docker Hub using Trivy.
+
 **4. Triggering the CD Job:**
 
 - Once the CI job is completed, trigger the CD job remotely.
+
 **5. CD Pipeline:**
 
 - Push the Docker image to a GitOps repository.
 - Use GitOps to trigger ArgoCD.
 - ArgoCD deploys the application on the Kubernetes (EKS) cluster.
+
 **6. Cluster Configuration:**
 
 - Create an AWS EKS cluster.
 - Install Prometheus and Grafana using Helm for monitoring the Kubernetes cluster.
+
 **7. ArgoCD Setup:**
 
 - Install ArgoCD on the EKS cluster.
 - Add the AWS EKS cluster to ArgoCD.
 - Configure ArgoCD to deploy Pods on the EKS cluster.
 - Automate ArgoCD deployment using a GitOps GitHub repository.
+
 **8. Trigger Mechanism:**
 
 - Set up GitHub webhooks to trigger the CI/CD pipeline.
