@@ -392,6 +392,7 @@ This step configures Jenkins to send email alerts for build notifications, ensur
 - Provide the following details:
    - SMTP Server: Specify your email provider's SMTP server (e.g., smtp.gmail.com for Gmail).
    - Default User E-mail Suffix: Set the email domain (e.g., @example.com).
+
 **2. Set Up Extended Email Notification :**
 
 - If you want advanced email configurations, scroll to the Extended E-mail Notification section and configure:
@@ -399,10 +400,12 @@ This step configures Jenkins to send email alerts for build notifications, ensur
    - SMTP Port: Typically 465 (for SSL) or 587 (for TLS).
    - Authentication: Enable and provide your email username and password.
    - Use SSL or Use TLS: Check the appropriate box based on your SMTP server settings.
+
 **3. Test Email Configuration:**
 
 - In the E-mail Notification or Extended E-mail Notification section, click Test configuration by sending test e-mail.
 - Enter a recipient email address and confirm that the test email is received.
+
 **4. Configure Email Alerts in Jenkins Jobs:**
 
 - Open the job for which you want to enable email notifications.
