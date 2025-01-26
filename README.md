@@ -161,21 +161,24 @@ With this setup, the infrastructure for the CI/CD pipeline is ready, and the req
 
 1. Check Jenkins Status:
 
-``bash
+```bash
    systemctl status jenkins
-Ensure Jenkins is active and running.
+
+- Ensure Jenkins is active and running.
 2. Check Docker Version:
 
-``bash
+```bash
    docker --version  
-This confirms Docker is installed and provides the installed version.
+- This confirms Docker is installed and provides the installed version.
 3. Check Trivy Version:
 
-``bash
+```bash
    trivy --version
-Verifies that Trivy is installed correctly and displays its version.
+
+- Verifies that Trivy is installed correctly and displays its version.
 4. List Docker Containers:
 
-``bash
+```bash
    docker ps -a
-This lists all running and stopped containers to confirm that the SonarQube container is set up.
+
+- This lists all running and stopped containers to confirm that the SonarQube container is set up.
