@@ -643,98 +643,118 @@ By following these steps, ArgoCD will be installed on your Kubernetes cluster, a
 
 ---
 
-## Step 9: Configure ArgoCD for Deployment on EKS Cluster with GitOps
+# Step 9: Configure ArgoCD for Deployment on EKS Cluster with GitOps
 
 This step involves configuring ArgoCD to deploy a pod on the EKS cluster and automating the deployment process using a GitOps repository containing the following configuration files:
 
-### 1. Files in the GitOps Repository
+### 1. Files in the GitOps Repository [ GitOps Folder](./GitOps-files/): 
 - **deployment.yaml**
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: reddit-clone-deployment
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nodejs-app:1.0.0-5
-  template:
-    metadata:
-      labels:
-        app: nodejs-app:1.0.0-5
-    spec:
-      containers:
-        - name: nodejs-app:1.0.0-5
-          image: khaoulaabdessamad/nodejs-app:1.0.0-5
-          resources:
-            limits:
-              cpu: "1"
-            requests:
-              cpu: "500m"
-          ports:
-            - containerPort: 3000
-```
+
+This file defines the Deployment configuration for the application, specifying how the application should be deployed in the Kubernetes cluster. Key components include:
+
+- Replicas: Defines the number of pod replicas to ensure high availability.
+- Selectors and Labels: Ensure pods are associated with the correct application.
+- Container Definition: Specifies the Docker image to use (khaoulaabdessamad/nodejs-app:$IMAGE_TAG) and resource limits for the application.
+- Port Mapping: Maps the container’s port to the service layer.
 - **service.yaml**
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: reddit-clone-service
-  labels:
-    app: reddit-clone-app 
-spec:
-  selector:
-    app: reddit-clone-app
-  ports:
-    - port: 3000
-      targetPort: 3000
-  type: LoadBalancer
-```
+
+This file defines the Service configuration to expose the application to the external network. Key components include:
+
+- Type: A LoadBalancer type service, which automatically provisions an external IP to access the application.
+- Ports: Specifies the application port (3000) to allow traffic.
+- Selectors: Matches the application pods created by the deployment.yaml file.
 - **Jenkinsfile**
-```groovy
-pipeline {
-    agent any
-    environment {
-        APP_NAME = "nodejs-app"
-    }
-    stages {
-        stage("Cleanup Workspace") {
-            steps {
-                cleanWs()
-            }
-        }
-        stage("Checkout from SCM") {
-            steps {
-                git branch: 'main', credentialsId: 'github', url: 'https://github.com/AbdessamadKhaoula/gitOps-pipline'
-            }
-        }
-        stage("Update the Deployment Tags") {
-            steps {
-                sh """
-                    cat deployment.yaml
-                    sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' deployment.yaml
-                    cat deployment.yaml
-                """
-            }
-        }
-        stage("Push the Changed Deployment File to GitHub") {
-            steps {
-                sh """
-                    git config --global user.name "AbdessamadKhaoula"
-                    git config --global user.email "khaoulaabdessamad2002@gmail.com"
-                    git add deployment.yaml
-                    git commit -m "Updated Deployment Manifest"
-                """
-                withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
-                    sh "git push https://github.com/AbdessamadKhaoula/gitOps-pipline main"
-                }
-            }
-        }
-    }
-}
+
+This is the pipeline script for Jenkins, automating the process of updating the deployment. Key stages include:
+
+- Workspace Cleanup: Ensures a clean environment for the pipeline execution.
+- SCM Checkout: Fetches the GitOps repository containing the deployment configuration.
+- Deployment Tag Update: Modifies the deployment.yaml file with the new application image tag.
+- Push to GitHub: Pushes the updated deployment.yaml back to the repository, triggering ArgoCD to redeploy the application automatically.
+### 2. Configure ArgoCD for GitOps
+Add the GitOps Repository to ArgoCD:
+- Log in to the ArgoCD dashboard.
+
+- Navigate to Applications > Create Application.
+
+- Fill in the following details:
+
+   - Application Name: reddit-clone-app
+   - Project: default
+   - Sync Policy: Automatic
+   - Repository URL: https://github.com/AbdessamadKhaoula/gitOps-pipline
+   - Path: ./
+   - Cluster URL: <EKS Cluster Context>
+   - Namespace: default
+-Click Create.
+
+### 3. Validate Deployment
+- Navigate to the ArgoCD dashboard.
+- Select the reddit-clone-app application.
+- Verify that the deployment.yaml and service.yaml files are applied successfully, and the pod is running on the EKS cluster.
+- Run the following command to verify:
+```bash
+kubectl get pods -n default
+kubectl get svc -n default
 ```
+- Expected Output:
+   - Pod with the name reddit-clone-deployment is running.
+   - A service with type LoadBalancer is created with an external IP.
+# Step 10: Automate Deployment with Jenkins (Create Continuous Deployment Job)
+In this step, Jenkins is configured to automate the deployment process for your application, ensuring that the latest changes are seamlessly integrated and deployed to the Kubernetes cluster. The process leverages ArgoCD for GitOps-based continuous deployment.
 
+**Key Objectives:**
 
+- Pull the latest changes from the GitOps repository.
+- Update the deployment.yaml file with the new Docker image tag.
+- Commit and push the updated file back to the repository.
+- Trigger ArgoCD to detect changes and redeploy the updated application.
+**Detailed Instructions:**
 
+Create a New Jenkins Pipeline Job:
 
+- Open Jenkins and navigate to New Item.
+- Select Pipeline as the job type.
+- Enter a name for the job (e.g., NodeJS-app-CD) and click OK.
+- Configure the Pipeline Job:
+- In the Pipeline section, set the following:
+   - Definition: Select Pipeline script from SCM.
+   - SCM: Choose Git.
+   - Repository URL: Add the Git repository URL (e.g., https://github.com/...).
+   - Branch: Specify the branch to track (e.g., main).
+   - Script Path: Provide the path to the Jenkins pipeline script (e.g., Jenkinsfile).
+   - Define the IMAGE_TAG Parameter: Add a parameter to dynamically specify the Docker image tag during the deployment process.
+This allows the pipeline to update the deployment.yaml file with the correct image version.
+Trigger ArgoCD Redeployment: ArgoCD monitors the repository for changes. Once it detects the updated deployment.yaml file, it automatically applies the changes and redeploys the application to the Kubernetes cluster.
+**Save and test the Pipeline**
+ 
+The final setup ensures a fully automated CI/CD pipeline that seamlessly integrates code changes from the `reddit-clone-app` repository into deployment. This includes triggering the CI job when a code push is detected, updating the `IMAGE_TAG` dynamically, and triggering the CD job remotely to deploy the latest version of the application.
+
+### Process Description:
+**1. Trigger CI Job on Code Push:**
+
+- Configure a webhook in the reddit-clone-app repository to notify Jenkins of changes.
+- When a developer pushes code to the repository, the CI job is triggered automatically.
+- The CI job performs the following tasks:*
+   - Clones the repository.
+   - Builds the application and creates a new Docker image.
+   - Tags the image with a unique version (IMAGE_TAG as v1.0.x).
+   - Pushes the new Docker image to the container registry.
+**2. Update IMAGE_TAG in GitOps Repository:**
+- After completing the CI job, Jenkins updates the deployment.yaml file in the GitOps repository to reference the new Docker image tag.
+- The file update is committed and pushed to the GitOps repository.
+**3. Trigger the CD Job Remotely:**
+
+- The CI job triggers the CD job remotely using Jenkins a webhook.
+- The CD job:
+   - Pulls the updated deployment.yaml file from the GitOps repository.
+   - Ensures the IMAGE_TAG reflects the latest Docker image version.
+   - Deploys the updated configuration to the Kubernetes cluster using ArgoCD.
+**4. Monitor ArgoCD Deployment:**
+
+- ArgoCD continuously monitors the GitOps repository for changes.
+- When the updated `deployment.yaml` is detected, ArgoCD applies the changes to the Kubernetes cluster.
+### Outcome:
+- Code pushes to the reddit-clone-app repository automatically trigger the CI job.
+- The IMAGE_TAG is updated dynamically and deployed to Kubernetes through the CD job.
+- The pipeline ensures a fully automated and reliable deployment process with minimal manual intervention.
