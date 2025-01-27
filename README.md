@@ -120,7 +120,7 @@ Prometheus is a monitoring tool that collects and stores metrics from Kubernetes
 ### **10. Grafana**  
 Grafana is a visualization tool used to create customizable dashboards for monitoring system metrics. It integrates seamlessly with Prometheus to display detailed insights into application and infrastructure performance. With Grafana, the team can analyze resource utilization and system health, making it easier to optimize and troubleshoot the pipeline and deployed services.  
 
-## Step 1: Infrastructure Creation  
+# Step 1: Infrastructure Creation  
 
 The first step in the pipeline is to provision the necessary infrastructure using Terraform. This includes creating an EC2 instance for hosting Jenkins, Docker, and SonarQube, as well as setting up the required security groups, IAM users, and permissions.  
 
@@ -159,32 +159,32 @@ With this setup, the infrastructure for the CI/CD pipeline is ready, and the req
 ### Verification
 - After Terraform has successfully applied the infrastructure, verify that the necessary services and tools are installed and running by connecting to the EC2 instance via SSH and running the following commands:
 
-1. Check Jenkins Status:
+***1. Check Jenkins Status:***
 
 ```bash
    systemctl status jenkins 
 ```
 - Ensure Jenkins is active and running.
-2. Check Docker Version:
+***2. Check Docker Version:***
 
 ```bash
    docker --version  
 ```
 - This confirms Docker is installed and provides the installed version.
-3. Check Trivy Version:
+***3. Check Trivy Version:***
 
 ```bash
    trivy --version
 ```
 - Verifies that Trivy is installed correctly and displays its version.
-4. List Docker Containers:
+***4. List Docker Containers:***
 
 ```bash
    docker ps -a
 ```
 - This lists all running and stopped containers to confirm that the SonarQube container is set up.
 
-## Step 2: Jenkins Setup for CI/CD Pipeline
+# Step 2: Jenkins Setup for CI/CD Pipeline
 
 ### 1. Install Necessary Plugins
 To configure Jenkins for the CI/CD pipeline, first, install the necessary plugins. These plugins will be required for integrating with NodeJS, JDK, SonarQube, and Docker.
@@ -197,22 +197,22 @@ After installing the required plugins, the next step is to install the tools: `N
 
 Next, configure SonarQube and connect it to Jenkins:
 
- ***Add SonarQube in Jenkins System*** 
-   - Go to **Manage Jenkins** → **Configure System**.
-   - Under **SonarQube Servers**, add the SonarQube server by providing the server URL (e.g., `http://<sonarqube-server-url>`).
-   - In the **Authentication Token** field, add the SonarQube authentication token you generated in SonarQube.
-***Add Quality Gate***
-   - In the SonarQube configuration within Jenkins, ensure the **Quality Gate** is added.
-   - This ensures the build quality is checked during each build.
+ - ***Add SonarQube in Jenkins System*** 
+      - Go to **Manage Jenkins** → **Configure System**.
+      - Under **SonarQube Servers**, add the SonarQube server by providing the server URL (e.g., `http://<sonarqube-server-url>`).
+      - In the **Authentication Token** field, add the SonarQube authentication token you generated in SonarQube.
+- ***Add Quality Gate***
+      - In the SonarQube configuration within Jenkins, ensure the **Quality Gate** is added.
+      - This ensures the build quality is checked during each build.
 
- ***Add Token in Jenkins Credentials***
-   - Go to **Manage Jenkins** → **Manage Credentials** → (select the scope) → **Add Credentials**.
-   - Select **Secret text** and enter your SonarQube authentication token.
+ - ***Add Token in Jenkins Credentials***
+      - Go to **Manage Jenkins** → **Manage Credentials** → (select the scope) → **Add Credentials**.
+      - Select **Secret text** and enter your SonarQube authentication token.
 
-***Configure GitHub Token***
-   - Similarly, add your GitHub personal access token in the Jenkins credentials:
-     - **Kind**: Secret text
-     - **Secret**: GitHub personal access token
+- ***Configure GitHub Token***
+      - Similarly, add your GitHub personal access token in the Jenkins credentials:
+         - **Kind**: Secret text
+         - **Secret**: GitHub personal access token
 
 ### 4. Link GitHub Repository to Jenkins
 
@@ -235,7 +235,7 @@ To integrate Docker Hub with Jenkins, follow these steps:
 
 With these configurations in place, you can now set up your Jenkins job to trigger builds and analyze your code using SonarQube!
 
-## Step 3: Create the Pipeline Script ([Jenkinsfile](./src/Jenkinsfile))
+# Step 3: Create the Pipeline Script ([Jenkinsfile](./src/Jenkinsfile))
 
 Below is the `Jenkinsfile` defining the CI pipeline. Each stage is explained below.
 
@@ -368,7 +368,7 @@ post {
 }
 ```
 - Sends an email notification with the build result, log, and scan reports attached.
-## Step 4: Create CI Job in Jenkins
+# Step 4: Create CI Job in Jenkins
 1. Open Jenkins, go to New Item, and select Pipeline.
 
 2. Name the job (e.g., NodeJS-app-CI) and click OK.
@@ -381,7 +381,7 @@ post {
 - Specify the branch (main) and the script path (Jenkinsfile).
 - Save and build the pipeline to execute the CI process.
 
-## Step 5: Setup Email Configuration Alert
+# Step 5: Setup Email Configuration Alert
 This step configures Jenkins to send email alerts for build notifications, ensuring that the team is informed about the success or failure of builds.
 
 ### Tasks
@@ -465,14 +465,14 @@ This allows the instance to interact with AWS services securely.
 Run the following command to create an EKS cluster:
 
 ```bash
-eksctl create cluster --name virtualtechbox-cluster \
---region ap-south-1 \
---node-type t2.small \
+eksctl create cluster --name nodeJs-cluster \
+--region eu-north-1 \
+--node-type t3.small \
 --nodes 3
 ```
 - name: Specifies the name of the EKS cluster.
-- region: Defines the AWS region where the cluster is created (e.g., ap-south-1 for Asia Pacific (Mumbai)).
-- node-type: Specifies the EC2 instance type for worker nodes (e.g., t2.small).
+- region: Defines the AWS region where the cluster is created.
+- node-type: Specifies the EC2 instance type for worker nodes (e.g., t3.small).
 - nodes: Indicates the number of worker nodes in the cluster.
 ## 6. Verify the Cluster
 Once the cluster is created, verify it using kubectl:
@@ -485,8 +485,9 @@ kubectl get nodes
 # Step 7: Setup Monitoring for Kubernetes Using Helm, Prometheus, and Grafana Dashboard
 This step involves setting up monitoring for your Kubernetes cluster by installing Prometheus and Grafana using Helm. Prometheus will collect metrics, and Grafana will provide visualizations and dashboards.
 
-Tasks
+### Tasks
 **1. Install Helm:**
+
 Helm is used to manage Kubernetes applications.
 
 ```bash
@@ -496,6 +497,7 @@ chmod 700 get_helm.sh
 helm version
 ```
 **2. Add Helm repositories:**
+
 Add the necessary `Helm` repositories for Prometheus and Grafana.
 
 ```bash
@@ -504,6 +506,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 kubectl create namespace prometheus  # Create namespace for Prometheus
 ```
 **3. Install Prometheus Using Helm:**
+
 Install the Prometheus Helm chart in the prometheus namespace.
 
 ```bash
@@ -512,6 +515,7 @@ kubectl get pods -n prometheus  # Verify Prometheus pods
 kubectl get svc -n prometheus   # Verify Prometheus services
 ```
 **4. Expose Prometheus to the External World:**
+
 Update the Prometheus service configuration to make it accessible outside the cluster.
 
 ```bash
@@ -626,15 +630,110 @@ kubectl config get-contexts
 ## 11. Add EKS Cluster to ArgoCD
 Register the EKS cluster with ArgoCD:
 ```bash
-argocd cluster add <EKS_CLUSTER_CONTEXT> --name virtualtechbox-eks-cluster
+argocd cluster add <EKS_CLUSTER_CONTEXT> --name nodeJs-eks-cluster
 ```
 - Replace <EKS_CLUSTER_CONTEXT> with the appropriate context name from kubectl config get-contexts.
 - Adds the EKS cluster to ArgoCD for application management and GitOps workflows.
+## 12. Verify Clusters in ArgoCD
+Check the list of clusters connected to ArgoCD:
+```bash
+argocd cluster list
+```
 By following these steps, ArgoCD will be installed on your Kubernetes cluster, and your EKS cluster will be integrated for seamless application deployment and management.
 
+---
 
+## Step 9: Configure ArgoCD for Deployment on EKS Cluster with GitOps
 
+This step involves configuring ArgoCD to deploy a pod on the EKS cluster and automating the deployment process using a GitOps repository containing the following configuration files:
 
+### 1. Files in the GitOps Repository
+- **deployment.yaml**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reddit-clone-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs-app:1.0.0-5
+  template:
+    metadata:
+      labels:
+        app: nodejs-app:1.0.0-5
+    spec:
+      containers:
+        - name: nodejs-app:1.0.0-5
+          image: khaoulaabdessamad/nodejs-app:1.0.0-5
+          resources:
+            limits:
+              cpu: "1"
+            requests:
+              cpu: "500m"
+          ports:
+            - containerPort: 3000
+```
+- **service.yaml**
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: reddit-clone-service
+  labels:
+    app: reddit-clone-app 
+spec:
+  selector:
+    app: reddit-clone-app
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: LoadBalancer
+```
+- **Jenkinsfile**
+```groovy
+pipeline {
+    agent any
+    environment {
+        APP_NAME = "nodejs-app"
+    }
+    stages {
+        stage("Cleanup Workspace") {
+            steps {
+                cleanWs()
+            }
+        }
+        stage("Checkout from SCM") {
+            steps {
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/AbdessamadKhaoula/gitOps-pipline'
+            }
+        }
+        stage("Update the Deployment Tags") {
+            steps {
+                sh """
+                    cat deployment.yaml
+                    sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' deployment.yaml
+                    cat deployment.yaml
+                """
+            }
+        }
+        stage("Push the Changed Deployment File to GitHub") {
+            steps {
+                sh """
+                    git config --global user.name "AbdessamadKhaoula"
+                    git config --global user.email "khaoulaabdessamad2002@gmail.com"
+                    git add deployment.yaml
+                    git commit -m "Updated Deployment Manifest"
+                """
+                withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
+                    sh "git push https://github.com/AbdessamadKhaoula/gitOps-pipline main"
+                }
+            }
+        }
+    }
+}
+```
 
 
 
