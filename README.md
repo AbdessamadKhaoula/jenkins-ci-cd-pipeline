@@ -767,3 +767,5 @@ The final setup ensures a fully automated CI/CD pipeline that seamlessly integra
 ## Video Demonstrating the CI/CD Pipeline
 Here’s a video demonstrating the complete CI/CD pipeline.
 [Watch the CI/CD Pipeline Demo Video](CI-CD-Demo.mkv)
+[![CI/CD Pipeline Demo](CI-CD-Demo.png?text=CI%2FCD+Pipeline+Demo)](CI-CD-Demo.mkv)
+[![CI/CD Pipeline Demo](https://via.placeholder.com/CI-CD-Demo.png?text=CI%2FCD+Pipeline+Demo)](https://drive.google.com/file/d/13H-ZOjmFkjh15poHVeL6_Oq-PJPK4TFS/view)
