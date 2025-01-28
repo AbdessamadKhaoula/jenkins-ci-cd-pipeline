@@ -766,4 +766,4 @@ The final setup ensures a fully automated CI/CD pipeline that seamlessly integra
 - The pipeline ensures a fully automated and reliable deployment process with minimal manual intervention.
 ## Video Demonstrating the CI/CD Pipeline
 Here’s a video demonstrating the complete CI/CD pipeline.
-![Diagramme](CI-CD-Demo.mkv)
+[Watch the CI/CD Pipeline Demo Video](CI-CD-Demo.mkv)
