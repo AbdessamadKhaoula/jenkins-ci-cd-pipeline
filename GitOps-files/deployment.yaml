@@ -6,15 +6,15 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nodejs-app:1.0.0-5
+      app: reddit-clone-app
   template:
     metadata:
       labels:
-        app: nodejs-app:1.0.0-5
+        app: reddit-clone-app
     spec:
       containers:
-        - name: nodejs-app:1.0.0-5
-          image:  khaoulaabdessamad/nodejs-app:1.0.0-5
+        - name: reddit-clone-app
+          image: khaoulaabdessamad/nodejs-app:1.0.0-5
           resources:
             limits:
               cpu: "1"

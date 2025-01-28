@@ -652,25 +652,25 @@ This step involves configuring ArgoCD to deploy a pod on the EKS cluster and aut
 
 This file defines the Deployment configuration for the application, specifying how the application should be deployed in the Kubernetes cluster. Key components include:
 
-- Replicas: Defines the number of pod replicas to ensure high availability.
-- Selectors and Labels: Ensure pods are associated with the correct application.
-- Container Definition: Specifies the Docker image to use (khaoulaabdessamad/nodejs-app:$IMAGE_TAG) and resource limits for the application.
-- Port Mapping: Maps the container’s port to the service layer.
+   - Replicas: Defines the number of pod replicas to ensure high availability.
+   - Selectors and Labels: Ensure pods are associated with the correct application.
+   - Container Definition: Specifies the Docker image to use (khaoulaabdessamad/nodejs-app:$IMAGE_TAG) and resource limits for the application.
+   - Port Mapping: Maps the container’s port to the service layer.
 - **service.yaml**
 
 This file defines the Service configuration to expose the application to the external network. Key components include:
 
-- Type: A LoadBalancer type service, which automatically provisions an external IP to access the application.
-- Ports: Specifies the application port (3000) to allow traffic.
-- Selectors: Matches the application pods created by the deployment.yaml file.
+   - Type: A LoadBalancer type service, which automatically provisions an external IP to access the application.
+   - Ports: Specifies the application port (3000) to allow traffic.
+   - Selectors: Matches the application pods created by the deployment.yaml file.
 - **Jenkinsfile**
 
 This is the pipeline script for Jenkins, automating the process of updating the deployment. Key stages include:
 
-- Workspace Cleanup: Ensures a clean environment for the pipeline execution.
-- SCM Checkout: Fetches the GitOps repository containing the deployment configuration.
-- Deployment Tag Update: Modifies the deployment.yaml file with the new application image tag.
-- Push to GitHub: Pushes the updated deployment.yaml back to the repository, triggering ArgoCD to redeploy the application automatically.
+   - Workspace Cleanup: Ensures a clean environment for the pipeline execution.
+   - SCM Checkout: Fetches the GitOps repository containing the deployment configuration.
+   - Deployment Tag Update: Modifies the deployment.yaml file with the new application image tag.
+   - Push to GitHub: Pushes the updated deployment.yaml back to the repository, triggering ArgoCD to redeploy the application automatically.
 ### 2. Configure ArgoCD for GitOps
 Add the GitOps Repository to ArgoCD:
 - Log in to the ArgoCD dashboard.
@@ -709,6 +709,7 @@ In this step, Jenkins is configured to automate the deployment process for your 
 - Update the deployment.yaml file with the new Docker image tag.
 - Commit and push the updated file back to the repository.
 - Trigger ArgoCD to detect changes and redeploy the updated application.
+
 **Detailed Instructions:**
 
 Create a New Jenkins Pipeline Job:
@@ -726,6 +727,7 @@ Create a New Jenkins Pipeline Job:
    - Define the IMAGE_TAG Parameter: Add a parameter to dynamically specify the Docker image tag during the deployment process.
 This allows the pipeline to update the deployment.yaml file with the correct image version.
 Trigger ArgoCD Redeployment: ArgoCD monitors the repository for changes. Once it detects the updated deployment.yaml file, it automatically applies the changes and redeploys the application to the Kubernetes cluster.
+
 **Save and test the Pipeline**
  
 The final setup ensures a fully automated CI/CD pipeline that seamlessly integrates code changes from the `reddit-clone-app` repository into deployment. This includes triggering the CI job when a code push is detected, updating the `IMAGE_TAG` dynamically, and triggering the CD job remotely to deploy the latest version of the application.
@@ -740,9 +742,12 @@ The final setup ensures a fully automated CI/CD pipeline that seamlessly integra
    - Builds the application and creates a new Docker image.
    - Tags the image with a unique version (IMAGE_TAG as v1.0.x).
    - Pushes the new Docker image to the container registry.
+
 **2. Update IMAGE_TAG in GitOps Repository:**
+
 - After completing the CI job, Jenkins updates the deployment.yaml file in the GitOps repository to reference the new Docker image tag.
 - The file update is committed and pushed to the GitOps repository.
+
 **3. Trigger the CD Job Remotely:**
 
 - The CI job triggers the CD job remotely using Jenkins a webhook.
@@ -750,6 +755,7 @@ The final setup ensures a fully automated CI/CD pipeline that seamlessly integra
    - Pulls the updated deployment.yaml file from the GitOps repository.
    - Ensures the IMAGE_TAG reflects the latest Docker image version.
    - Deploys the updated configuration to the Kubernetes cluster using ArgoCD.
+
 **4. Monitor ArgoCD Deployment:**
 
 - ArgoCD continuously monitors the GitOps repository for changes.
@@ -758,3 +764,6 @@ The final setup ensures a fully automated CI/CD pipeline that seamlessly integra
 - Code pushes to the reddit-clone-app repository automatically trigger the CI job.
 - The IMAGE_TAG is updated dynamically and deployed to Kubernetes through the CD job.
 - The pipeline ensures a fully automated and reliable deployment process with minimal manual intervention.
+## Video Demonstrating the CI/CD Pipeline
+Here’s a video demonstrating the complete CI/CD pipeline.
+![Diagramme](CI-CD-Demo.mkv)
