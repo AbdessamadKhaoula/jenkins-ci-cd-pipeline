@@ -205,18 +205,18 @@ Next, configure SonarQube and connect it to Jenkins:
       - Under **SonarQube Servers**, add the SonarQube server by providing the server URL (e.g., `http://<sonarqube-server-url>`).
       - In the **Authentication Token** field, add the SonarQube authentication token you generated in SonarQube.
         
-- ***Add Quality Gate***  
-      - In the SonarQube configuration within Jenkins, ensure the **Quality Gate** is added. 
+- ***Add Quality Gate*** 
+      - In the SonarQube configuration within Jenkins, ensure the **Quality Gate** is added.
       - This ensures the build quality is checked during each build.
 
  - ***Add Token in Jenkins Credentials*** 
       - Go to **Manage Jenkins** → **Manage Credentials** → (select the scope) → **Add Credentials**.
       - Select **Secret text** and enter your SonarQube authentication token.
 
-- ***Configure GitHub Token***  
-      - Similarly, add your GitHub personal access token in the Jenkins credentials: 
-         - **Kind**: Secret text
-         - **Secret**: GitHub personal access token
+- ***Configure GitHub Token***
+      - Similarly, add your GitHub personal access token in the Jenkins credentials:
+        - **Kind**: Secret text
+        - **Secret**: GitHub personal access token
 
 ### 4. Link GitHub Repository to Jenkins
 
