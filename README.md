@@ -321,8 +321,8 @@ stage("Build & Push Docker Image") {
 }
 ```
 - Builds a Docker image for the application and pushes it to Docker Hub with two tags:
-1. ${IMAGE_TAG}: Versioned tag.
-2. latest: Latest tag.
+  - ${IMAGE_TAG}: Versioned tag.
+  - latest: Latest tag.
 ### Trivy Image Scan
 ```groovy
 stage("Trivy Image Scan") {
