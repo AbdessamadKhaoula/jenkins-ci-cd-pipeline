@@ -256,7 +256,7 @@ Below is the `Jenkinsfile` defining the CI pipeline. Each stage is explained bel
 ```groovy
    stage('Checkout from Git') {
       steps {
-         git branch: 'main', url: 'https://github.com/AbdessamadKhaoula/pipelineCI-CD-nodejs.git'
+         git branch: 'main', url: 'https://github.com/AbdessamadKhaoula/nodejs_application.git'
       }
    }
 ```
