@@ -165,18 +165,21 @@ With this setup, the infrastructure for the CI/CD pipeline is ready, and the req
    systemctl status jenkins 
 ```
 - Ensure Jenkins is active and running.
+  
 ***2. Check Docker Version:***
 
 ```bash
    docker --version  
 ```
-- This confirms Docker is installed and provides the installed version.
+- This confirms Docker is installed and provides the installed version
+  
 ***3. Check Trivy Version:***
 
 ```bash
    trivy --version
 ```
 - Verifies that Trivy is installed correctly and displays its version.
+  
 ***4. List Docker Containers:***
 
 ```bash
