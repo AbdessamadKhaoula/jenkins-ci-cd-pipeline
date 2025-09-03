@@ -656,25 +656,25 @@ This step involves configuring ArgoCD to deploy a pod on the EKS cluster and aut
 
 This file defines the Deployment configuration for the application, specifying how the application should be deployed in the Kubernetes cluster. Key components include:
 
-   - Replicas: Defines the number of pod replicas to ensure high availability.
-   - Selectors and Labels: Ensure pods are associated with the correct application.
-   - Container Definition: Specifies the Docker image to use (khaoulaabdessamad/nodejs-app:$IMAGE_TAG) and resource limits for the application.
-   - Port Mapping: Maps the container’s port to the service layer.
+     - Replicas: Defines the number of pod replicas to ensure high availability.
+     - Selectors and Labels: Ensure pods are associated with the correct application.
+     - Container Definition: Specifies the Docker image to use (khaoulaabdessamad/nodejs-app:$IMAGE_TAG) and resource limits for the application.
+     - Port Mapping: Maps the container’s port to the service layer.
 - **service.yaml**
 
 This file defines the Service configuration to expose the application to the external network. Key components include:
 
-   - Type: A LoadBalancer type service, which automatically provisions an external IP to access the application.
-   - Ports: Specifies the application port (3000) to allow traffic.
-   - Selectors: Matches the application pods created by the deployment.yaml file.
+     - Type: A LoadBalancer type service, which automatically provisions an external IP to access the application.
+     - Ports: Specifies the application port (3000) to allow traffic.
+     - Selectors: Matches the application pods created by the deployment.yaml file.
 - **Jenkinsfile**
 
 This is the pipeline script for Jenkins, automating the process of updating the deployment. Key stages include:
 
-   - Workspace Cleanup: Ensures a clean environment for the pipeline execution.
-   - SCM Checkout: Fetches the GitOps repository containing the deployment configuration.
-   - Deployment Tag Update: Modifies the deployment.yaml file with the new application image tag.
-   - Push to GitHub: Pushes the updated deployment.yaml back to the repository, triggering ArgoCD to redeploy the application automatically.
+     - Workspace Cleanup: Ensures a clean environment for the pipeline execution.
+     - SCM Checkout: Fetches the GitOps repository containing the deployment configuration.
+     - Deployment Tag Update: Modifies the deployment.yaml file with the new application image tag.
+     - Push to GitHub: Pushes the updated deployment.yaml back to the repository, triggering ArgoCD to redeploy the application automatically.
 ### 2. Configure ArgoCD for GitOps
 Add the GitOps Repository to ArgoCD:
 - Log in to the ArgoCD dashboard.
